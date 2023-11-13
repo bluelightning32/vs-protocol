@@ -1,0 +1,1432 @@
+// Copyright Tyron Madlener
+
+package Packet;
+
+	// Packetids for Client to Server
+	enum ClientId
+	{
+		LoginTokenQuery = 33;
+        PlayerIdentification = 1;
+        PingReply = 2;
+        BlockPlaceOrBreak = 3;
+        ChatLine = 4;
+		ActivateInventorySlot = 7;
+		MoveItemstack = 8;
+		FlipItemstacks = 9;
+		CreateItemstack = 10;
+        RequestJoin = 11;
+        SpecialKey = 12;
+        SelectedHotbarSlot = 13;
+        Leave = 14;
+        ServerQuery = 15;
+		
+		EntityInteraction = 17;
+		PlayerPosition = 19;
+		RequestModeChange = 20;
+		MoveKeyChange = 21;
+		
+		BlockEntityPacket = 22;
+		EntityPacket = 31;
+		CustomPacket = 23;
+		HandInteraction = 25;
+		ClientLoaded = 26;
+		SetToolMode = 27;
+		BlockDamage = 28;
+		ClientPlaying = 29;
+		InvOpenClose = 30;
+		RuntimeSetting = 32;
+	}
+	
+	// The client->server packet
+    message Client
+    {
+		optional LoginTokenQuery LoginTokenQuery = 33;
+		optional ClientId id = 1 [default = PlayerIdentification];
+        optional ClientIdentification identification = 2;
+        optional ClientBlockPlaceOrBreak blockPlaceOrBreak = 3;        
+        optional ChatLine chatline = 4;
+        optional ClientRequestJoin requestJoin = 5;
+        optional ClientPingReply pingReply = 6;
+        optional ClientSpecialKey specialKey_ = 7;
+        optional SelectedHotbarSlot selectedHotbarSlot = 8;
+        optional ClientLeave leave = 9;
+        optional ClientServerQuery query = 10;
+		optional MoveItemstack moveItemstack = 14;
+		optional FlipItemstacks flipitemstacks = 15;
+		optional EntityInteraction entityInteraction = 16;
+		optional PlayerPosition playerPosition = 18;
+		optional ActivateInventorySlot activateInventorySlot = 19;
+		optional CreateItemstack createItemstack = 20;
+		optional PlayerMode requestModeChange = 21;
+		optional MoveKeyChange moveKeyChange = 22;
+		optional BlockEntityPacket blockEntityPacket = 23;
+		optional EntityPacket entityPacket = 31;
+		optional CustomPacket customPacket = 24;
+		optional ClientHandInteraction handInteraction = 25;
+		optional ToolMode toolMode = 26;
+		optional BlockDamage blockDamage = 27;
+		optional ClientPlaying clientPlaying = 28;
+		optional InvOpenClose invOpenedClosed = 30;
+		optional RuntimeSetting runtimeSetting = 32;
+	}
+
+
+	message ClientLoaded {
+	}
+	
+	message ClientPlaying {
+	}
+	
+	message RuntimeSetting {
+		optional int32 immersiveFpMode = 1;
+		optional int32 itemCollectMode = 2;
+	}
+	
+	message ToolMode {
+		optional int32 mode = 1;
+        optional int32 x = 2;
+        optional int32 y = 3;
+        optional int32 z = 4;
+	}
+	
+	message CustomPacket {
+		optional int32 channelId = 1;
+        optional int32 messageId = 2;
+		optional bytes data = 3;
+	}
+	
+	message BlockEntityPacket {
+        optional int32 x = 1;
+        optional int32 y = 2;
+        optional int32 z = 3;
+		optional int32 packetid = 4;
+		optional bytes data = 5;
+	}
+	
+	message EntityPacket {
+        optional int64 entityId = 1;
+		optional int32 packetid = 2;
+		optional bytes data = 3;
+	}
+	
+	message MoveKeyChange {
+		optional MoveKey key = 1  [default = Forward];
+		optional int32 down = 2;
+	}
+	
+	message EntityInteraction {
+		optional int32 mouseButton = 1;
+		optional int64 entityId = 2;
+		optional int32 onBlockFace = 3;
+		optional int64 hitX = 4;
+		optional int64 hitY = 5;
+		optional int64 hitZ = 6;
+		optional int32 selectionBoxIndex = 7;
+	}
+	
+	message ClientIdentification
+	{
+        optional string mdProtocolVersion = 1;
+        optional string playername = 2;
+        optional string mpToken = 3;
+        optional string serverPassword = 4;
+		optional string playerUID = 6;
+		optional int32 viewDistance = 7;
+		optional int32 renderMetaBlocks = 8;
+		optional string networkVersion = 9;
+		optional string shortGameVersion = 10;
+	}
+
+	message ClientRequestJoin
+	{
+		optional string language = 1;
+	}
+
+    message ClientBlockPlaceOrBreak
+    {
+        optional int32 x = 1;
+        optional int32 y = 2;
+        optional int32 z = 3;
+        optional BlockSetMode mode = 4 [default = Break];
+        optional int32 blockType = 5; 
+		optional int32 onBlockFace = 7;
+		optional int64 hitX = 8;
+		optional int64 hitY = 9;
+		optional int64 hitZ = 10;
+		optional int32 selectionBoxIndex = 11;
+		optional int32 didOffset = 12;
+    }
+	
+	message ClientHandInteraction
+    {
+		optional int32 useType = 15;
+        optional int32 mouseButton = 1;
+		optional string inventoryId = 2;
+		optional int32 slotId = 3;
+		
+		optional int32 x = 4;
+        optional int32 y = 5;
+        optional int32 z = 6;
+		optional int32 onBlockFace = 7;
+		optional int64 hitX = 8;
+		optional int64 hitY = 9;
+		optional int64 hitZ = 10;
+		optional int64 onEntityId = 14;
+		
+		optional int32 enumHandInteract = 11;
+		optional int32 usingCount = 12;
+		optional int32 selectionBoxIndex = 13;
+		optional int32 cancelReason = 16;
+		optional int32 firstEvent = 17;
+    }
+        
+
+	message InvOpenClose { 
+		optional string inventoryId = 1;
+		optional int32 opened = 2;
+	}
+	
+		
+	message ActivateInventorySlot {
+	   optional int32 mouseButton = 1;
+	   optional int32 modifiers = 4;
+	   optional string TargetInventoryId = 2;
+	   optional int32 TargetSlot = 3;
+	   optional int64 TargetLastChanged = 5;
+	   optional int32 TabIndex = 6;
+	   optional int32 priority = 7;
+	   optional int32 dir = 8;
+	}
+
+	message MoveItemstack {
+	   optional string SourceInventoryId = 1;
+	   optional string TargetInventoryId = 2;
+	   optional int32 SourceSlot = 3;
+	   optional int32 TargetSlot = 4;
+	   optional int32 Quantity = 5;
+	   
+   	   optional int64 SourceLastChanged = 6;
+	   optional int64 TargetLastChanged = 7;
+	   
+	   optional int32 mouseButton = 8;
+	   optional int32 modifiers = 9;
+	   optional int32 priority = 10;
+	   
+	   optional int32 TabIndex = 11;
+	}
+
+	message FlipItemstacks {
+	   optional string SourceInventoryId = 1;
+	   optional string TargetInventoryId = 2;
+	   optional int32 SourceSlot = 3;
+	   optional int32 TargetSlot = 4;
+	   
+   	   optional int64 SourceLastChanged = 5;
+	   optional int64 TargetLastChanged = 6;
+	   
+		optional int32 SourceTabIndex = 7;
+		optional int32 TargetTabIndex = 8;
+	}
+	
+	message CreateItemstack {
+	   optional string TargetInventoryId = 1;
+	   optional int32 TargetSlot = 2;
+	   optional int64 TargetLastChanged = 3;
+	   optional ItemStack itemstack = 4;
+	}
+
+    
+    enum BlockSetMode
+    {
+        Break = 0;
+        Place = 1;
+		BreakDecor = 2;
+    }
+    
+    message ClientLeave
+    {
+        optional LeaveReason Reason = 1 [default=Leave];
+    }
+    
+	enum MoveKey {
+		Forward = 0;
+		Backward = 1;
+		Left = 2;
+		Right = 3;
+		Jump = 4;
+		Sneak = 5;
+		Down = 6;
+		Sprint = 7;
+		Sitting = 8;
+		FloorSitting = 9;
+		LeftMouseDown = 10;
+		RightMouseDown = 11;
+	}
+	
+    enum LeaveReason
+    {
+        Leave = 0;
+        Crash = 1;
+    }
+    
+    message ClientPingReply
+    {
+    }
+    
+    message ClientSpecialKey
+    {
+        optional SpecialKey key_ = 1 [default = Respawn];
+    }
+    
+    enum SpecialKey
+    {
+        Respawn = 0;
+        SetSpawn = 1;
+        TabPlayerList = 2;
+        SelectTeam = 3;
+    }
+    
+    message SelectedHotbarSlot
+    {
+        optional int32 slotNumber = 1;
+		optional int32 clientId = 2;
+		optional ItemStack Itemstack = 3;
+		optional ItemStack OffhandStack = 4;
+    }
+    
+    message ClientServerQuery
+    {
+    }
+	
+	message LoginTokenQuery
+	{ 
+	}
+	
+	message LoginTokenAnswer
+	{
+		optional string token = 1;
+	}
+    
+	message Behavior
+	{
+		optional string code = 1;
+		optional string attributes = 2;
+		optional int32 clientSideOptional = 3;
+	}
+
+    message BlockSoundSet
+    {
+        optional string walk = 1;
+        optional string break = 2;
+        optional string place = 3;
+        optional string hit = 4;
+		optional string inside = 5;
+		optional string ambient = 6;
+		optional int32 ambientBlockCount = 9;
+		repeated int32 byToolTool = 7;
+		repeated BlockSoundSet byToolSound = 8;
+    }
+	
+	message HeldSoundSet 
+	{
+        optional string idle = 1;
+        optional string equip = 2;
+        optional string unequip = 3;
+        optional string attack = 4;		
+	}
+	
+	
+	message PlayerMode
+	{
+		optional string playerUID = 1;
+		optional int32 gameMode = 2;
+		optional int32 moveSpeed = 3;
+		optional int32 freeMove = 4;
+		optional int32 noClip = 5;
+		optional int32 viewDistance = 6;
+		optional int32 pickingRange = 7;
+		optional int32 freeMovePlaneLock = 8;
+		optional int32 immersiveFpMode = 9;
+		optional int32 renderMetaBlocks = 10;
+	}
+	
+	message Ambient {
+		optional bytes data = 1;
+	}
+
+
+    message BlockType
+    {
+        repeated string textureCodes = 1;
+		repeated CompositeTexture compositeTextures = 2;
+		
+		repeated string inventoryTextureCodes = 3;
+		repeated CompositeTexture inventoryCompositeTextures = 4;
+		
+		optional int32 blockId = 5;
+		optional string code = 6;
+		optional string entityClass = 58;
+		repeated Behavior behaviors = 7;
+		optional string entityBehaviors = 84;
+		optional int32 renderPass= 8;
+        optional int32 drawType = 9;
+        optional MatterState matterState = 10 [ default = Gas ];
+        optional int32 walkSpeedFloat = 11;
+        optional bool isSlipperyWalk = 12;
+        optional BlockSoundSet sounds = 13;
+		optional HeldSoundSet heldSounds = 83;
+        repeated int32 lightHsv = 14;
+		optional int32 vertexFlags = 51;
+		optional int32 climbable = 15;
+        repeated string creativeInventoryTabs = 16;
+		optional bytes creativeInventoryStacks = 17;
+		repeated int32 sideOpaqueFlags = 24;
+		optional int32 faceCullMode = 23;
+		repeated int32 sideSolidFlags = 46;
+		optional string seasonColorMap = 25;
+		optional string climateColorMap = 88;
+		optional int32 cullFaces = 26;
+		optional int32 replacable = 27;
+		optional int32 lightAbsorption = 29;
+		optional int32 hardnessLevel = 30;
+		optional int32 resistance = 31;
+		optional int32 blockMaterial = 32;
+		optional bytes moddata = 33;
+		optional CompositeShape shape = 34;
+		optional CompositeShape shapeInventory = 35;
+		optional int32 ambientocclusion = 38;
+		repeated Cube collisionBoxes = 39;
+		repeated Cube selectionBoxes = 40;
+		repeated Cube particleCollisionBoxes = 91;
+		
+		optional string blockclass = 41;
+		optional ModelTransform guiTransform = 42;
+		optional ModelTransform fpHandTransform = 43;
+		optional ModelTransform tpHandTransform = 44;
+		optional ModelTransform tpOffHandTransform = 99;
+		optional ModelTransform groundTransform = 45;
+		optional int32 fertility = 47;
+		
+		optional bytes ParticleProperties = 48;
+		optional int32 ParticlePropertiesQuantity = 49;
+		optional int32 RandomDrawOffset = 50;
+		optional int32 RandomizeAxes = 69;
+		optional int32 RandomizeRotations = 87;
+		repeated BlockDrop drops = 52;
+		optional int32 liquidLevel = 53;
+		optional string attributes = 54;
+		optional CombustibleProperties combustibleProps = 55;
+		repeated int32 sideAo = 57;
+		optional int32 neighbourSideAo = 79;
+		optional GrindingProperties grindingProps = 77;
+		optional NutritionProperties nutritionProps = 59;
+		repeated TransitionableProperties transitionableProps = 85;
+		optional int32 maxStackSize = 60;
+		optional bytes cropProps = 61;
+		repeated string cropPropBehaviors = 90;
+		optional int32 materialDensity = 62;
+		optional int32 attackPower = 63;
+		optional int32 attackRange = 70;
+		optional int32 liquidSelectable= 64;
+		optional int32 miningTier = 65;
+		optional int32 requiredMiningTier = 66;
+		repeated int32 miningmaterial = 67;
+		repeated int32 miningmaterialspeed = 76;
+		optional int32 dragMultiplierFloat = 68;
+		optional int32 storageFlags = 71;
+		optional int32 renderAlphaTest = 72;
+		optional string heldTpHitAnimation = 73;
+		optional string heldRightTpIdleAnimation = 74;
+		optional string heldLeftTpIdleAnimation = 80;
+		optional string heldTpUseAnimation = 75;
+		optional int32 rainPermeable = 78;
+		optional string liquidCode = 81;
+		repeated VariantPart variant = 82;
+		optional CompositeShape lod0shape = 86;
+		optional int32 frostable = 89;
+		optional CrushingProperties crushingProps = 92;
+		optional int32 RandomSizeAdjust = 93;
+		optional CompositeShape lod2shape = 94;
+		optional int32 DoNotRenderAtLod2 = 95;
+		
+		optional int32 width = 96;
+		optional int32 height = 97;
+		optional int32 length = 98;
+		optional int32 isMissing = 100;
+		optional int32 durability = 101;
+		
+		optional string heldLeftReadyAnimation = 102;
+		optional string heldRightReadyAnimation = 103;
+    }
+	
+	message VariantPart {
+		optional string code = 1;
+		optional string value = 2;
+	}
+	
+	
+	message CombustibleProperties {
+		optional int32 burnTemperature = 1;
+		optional int32 burnDuration = 2;
+		optional int32 heatResistance = 3;
+		optional int32 meltingPoint = 4;
+		optional int32 meltingDuration = 5;
+		optional bytes smeltedStack = 6;
+		optional int32 smeltedRatio = 7;
+		optional int32 requiresContainer= 8;
+		optional int32 meltingType = 9;
+		optional int32 maxTemperature = 10;
+	}
+	
+	message NutritionProperties {
+		optional int32 foodCategory = 1;
+		optional int32 saturation = 2;
+		optional int32 health = 3;
+		optional bytes eatenStack = 4;
+	}
+	
+	message TransitionableProperties {
+		optional NatFloat freshHours = 1;
+		optional NatFloat transitionHours = 2;
+		optional bytes transitionedStack = 3;
+		optional int32 transitionRatio = 4;
+		optional int32 type = 5;
+	}
+	
+	message GrindingProperties {
+		optional bytes groundStack = 1;
+	}
+
+	message CrushingProperties {
+		optional bytes crushedStack = 1;
+		optional int32 hardnessTier = 2;
+		optional NatFloat quantity = 3;
+	}
+
+	message BlockDrop
+	{
+		optional int32 quantityAvg = 1;
+		optional int32 quantityVar = 2;
+		optional int32 quantityDist = 3;
+		optional bytes droppedStack = 4;
+		optional int32 tool = 5;
+	}
+	
+	message NatFloat {
+		optional int32 avg = 1;
+		optional int32 var = 2;
+		optional int32 dist = 3;
+	}
+	
+	
+	message CompositeShape
+	{
+		optional string base = 1;
+		optional int32 rotatex = 2;
+		optional int32 rotatey = 3;
+		optional int32 rotatez = 4;
+		repeated CompositeShape alternates = 5;
+		repeated CompositeShape overlays = 11;
+		optional int32 voxelizeShape = 6;
+		repeated string selectiveElements = 7;
+		optional int32 quantityElements = 8;
+		optional int32 quantityElementsSet = 9;
+		optional int32 format = 10;
+		
+		optional int32 offsetx = 12;
+		optional int32 offsety = 13;
+		optional int32 offsetz = 14;
+		optional bool InsertBakedTextures = 15;
+		optional int32 scaleAdjust = 16;
+	}
+	
+	message CompositeTexture {
+		optional string base = 1;
+		repeated BlendedOverlayTexture overlays = 2;
+		repeated CompositeTexture alternates = 3;
+		optional int32 rotation = 4;
+		optional int32 alpha = 5;
+		repeated CompositeTexture tiles = 6;
+		optional int32 tilesWidth = 7;
+	}
+	
+	message BlendedOverlayTexture {
+		optional string base = 1;
+		optional int32 mode = 2;
+	}
+	
+	
+	message ItemType
+	{
+		optional int32 itemId = 1;
+		optional int32 maxStackSize = 2;
+		optional string code = 3;
+		repeated Behavior behaviors = 39;
+		repeated CompositeTexture compositeTextures = 4;
+		optional int32 durability = 5;
+		repeated int32 miningmaterial = 6;
+		repeated int32 miningmaterialspeed = 31;
+		repeated int32 damagedby = 7;
+		optional bytes creativeInventoryStacks = 8;
+		repeated string creativeInventoryTabs = 9;
+		optional ModelTransform guiTransform = 10;
+		optional ModelTransform fpHandTransform = 11;
+		optional ModelTransform tpHandTransform = 12;
+		optional ModelTransform tpOffHandTransform = 43;
+		optional ModelTransform groundTransform = 22;
+		optional string attributes = 13;
+		optional CombustibleProperties combustibleProps = 14;
+		optional NutritionProperties nutritionProps = 15;
+		optional GrindingProperties grindingProps = 32;
+		optional CrushingProperties crushingProps = 38;
+		repeated TransitionableProperties transitionableProps = 36;
+		optional CompositeShape shape = 16;
+		repeated string textureCodes = 17;
+		optional string itemClass=18;
+		optional int32 tool = 19;
+		optional int32 materialDensity = 20;
+		optional int32 attackPower = 21;
+		optional int32 attackRange = 25;
+		optional int32 liquidSelectable= 23;
+		optional int32 miningTier = 24;
+		optional int32 storageFlags = 26;
+		optional int32 renderAlphaTest = 27;
+		optional string heldTpHitAnimation = 28;
+		optional string heldRightTpIdleAnimation = 29;
+		optional string heldLeftTpIdleAnimation = 34;
+		optional string heldTpUseAnimation = 30;
+		optional MatterState matterState = 33 [ default = Gas ];
+		repeated VariantPart variant = 35;
+		optional HeldSoundSet heldSounds = 37;
+		
+		optional int32 width = 40;
+		optional int32 height = 41;
+		optional int32 length = 42;
+		repeated int32 lightHsv = 44;
+		optional int32 isMissing = 45;
+		
+		optional string heldLeftReadyAnimation = 46;
+		optional string heldRightReadyAnimation = 47;
+	}
+
+    message ModelTransform {
+		optional int32 translateX = 1;
+		optional int32 translateY = 2;
+		optional int32 translateZ = 3;
+		
+		optional int32 rotateX = 4;
+		optional int32 rotateY = 5;
+		optional int32 rotateZ = 6;
+
+		optional int32 rotate = 8;
+
+		optional int32 originX = 9;
+		optional int32 originY = 10;
+		optional int32 originZ = 11;
+		
+		optional int32 scaleX = 12;
+		optional int32 scaleY = 13;
+		optional int32 scaleZ = 14;
+	}
+	
+	
+    
+    enum MatterState
+    {
+        Gas = 0;
+        Liquid = 1;
+        Solid = 2;
+		Plasma = 3;
+    }
+    
+	// Packetids for Server to Client
+	enum ServerId
+	{
+		TokenAnswer = 77;
+        ServerIdentification = 1;
+        Ping = 2;
+        PlayerPing = 3;
+        LevelInitialize = 4;
+        LevelDataChunk = 5;
+        LevelFinalize = 6;
+        SetBlock = 7;
+        ChatLine = 8;
+        DisconnectPlayer = 9;
+        Chunks = 10;
+		UnloadServerChunk = 11;
+        Inventory = 12;
+        Calendar = 13;
+        MapChunk = 17;
+        Sound = 18;
+        ServerAssets = 19;
+        WorldMetaData = 21;
+        BlockType = 24;
+		QueryAnswer = 28;
+        ServerRedirect = 29;
+		InventoryContents = 30;
+		InventoryUpdate = 31;
+		InventoryDoubleUpdate = 32;
+		Entity = 33;
+		EntitySpawn = 34;
+		EntityMoved = 35;
+		EntityDespawn = 36;
+		EntityAttributes = 37;
+		EntityAttributeUpdate = 38;
+		EntityPacket = 67;
+		
+		Entities = 40;
+		PlayerData = 41;
+		MapRegion = 42;
+		
+		BlockEntityMessage = 44;
+		PlayerDeath = 45;
+		ModeChange = 46;
+		SetBlocks = 47;
+		BlockEntities = 48;
+		PlayerGroups = 49;
+		PlayerGroup = 50;
+		SpawnPosition = 51;
+		HighlightBlocks = 52;
+		SelectedHotbarSlot = 53;
+		CustomPacket = 55;
+		NetworkChannels = 56;
+		GotoGroup = 57;
+		ExchangeBlock = 58;
+		StopMovement = 59;
+		EntityBulkAttributes = 60;
+		SpawnParticles = 61;
+		EntityBulkDebugAttributes = 62;
+		SetBlocksNoRelight = 63;
+		BlockDamage = 64;
+		Ambient = 65;
+		NotifySlot = 66;
+		IngameError = 68;
+		IngameDiscovery = 69;
+		SetBlocksMinimal = 70;
+		SetDecors = 71;
+		RemoveBlockLight = 72;
+		ServerReady = 73;
+		UnloadMapRegion = 74;
+		LandClaims = 75;
+		Roles = 76;
+	}
+	
+
+	// The Server to client packet
+    message Server /*IPacket*/
+    {
+        optional ServerId id = 90 [default = ServerIdentification];
+		optional LoginTokenAnswer token = 77;
+        optional ServerIdentification identification = 1;
+        optional ServerLevelInitialize levelInitialize = 2;
+        optional ServerLevelProgress levelDataChunk = 3;
+        optional ServerLevelFinalize levelFinalize = 4;
+        optional ServerSetBlock setBlock = 5;
+		
+        optional ChatLine chatline = 7;
+        optional ServerDisconnectPlayer disconnectPlayer = 8;
+        optional ServerChunks chunks = 9;
+		optional UnloadServerChunk unloadChunk = 10;
+        optional ServerCalendar calendar = 11;
+        optional ServerMapChunk mapChunk = 15;
+        optional ServerPing ping = 16;
+        optional ServerPlayerPing playerPing = 17;
+        optional ServerSound sound = 18;
+        optional ServerAssets assets = 19;
+        optional WorldMetaData worldMetaData = 21;
+		
+		optional ServerQueryAnswer queryAnswer = 28;
+        optional ServerRedirect redirect = 29;
+		
+		optional InventoryContents inventoryContents = 30;
+		optional InventoryUpdate inventoryUpdate = 31;
+		optional InventoryDoubleUpdate inventoryDoubleUpdate = 32;
+		
+		optional Entity entity = 34;
+		optional EntitySpawn entitySpawn = 35;
+		optional EntityDespawn entityDespawn = 36;
+		optional EntityMoved entityMoved = 37;
+		optional EntityAttributes entityAttributes = 38;
+		optional EntityAttributeUpdate entityAttributeUpdate = 39;
+		optional EntityPacket entityPacket = 67;
+		
+		optional Entities entities = 40;
+		optional PlayerData playerData = 41;
+		optional MapRegion mapRegion = 42;
+		optional BlockEntityMessage blockEntityMessage = 44;
+		optional PlayerDeath playerDeath = 45;
+		optional PlayerMode modeChange = 46;
+		optional ServerSetBlocks setBlocks = 47;
+		optional BlockEntities blockEntities = 48;
+		optional PlayerGroups playerGroups = 49;
+		optional PlayerGroup playerGroup = 50;
+		optional EntityPosition spawnPosition = 51;
+		optional HighlightBlocks highlightBlocks = 52;
+		optional SelectedHotbarSlot selectedHotbarSlot = 53;
+		
+		optional CustomPacket customPacket = 55;
+		optional NetworkChannels networkChannels = 56;
+		optional GotoGroup gotoGroup = 57;
+		optional ServerExchangeBlock exchangeBlock = 58;
+		optional BulkEntityAttributes bulkEntityAttributes = 59;
+		optional SpawnParticles spawnParticles = 60;
+		optional BulkEntityDebugAttributes bulkEntityDebugAttributes = 61;
+		optional ServerSetBlocks setBlocksNoRelight = 62;
+		optional BlockDamage blockDamage = 64;
+		optional Ambient ambient = 65;
+		optional NotifySlot notifySlot = 66;
+		optional IngameError ingameError = 68;
+		optional IngameDiscovery ingameDiscovery = 69;
+		optional ServerSetBlocks setBlocksMinimal = 70;
+		optional ServerSetDecors setDecors = 71;
+		optional RemoveBlockLight removeBlockLight = 72;
+		optional ServerReady serverReady = 73;
+		optional UnloadMapRegion unloadMapRegion = 74;
+		optional LandClaims landClaims = 75;
+		optional Roles roles = 76;
+    }
+	
+	message RemoveBlockLight {
+		optional int32 posX = 1;
+		optional int32 posY = 2;
+		optional int32 posZ = 3;
+		optional int32 lightH = 4;
+		optional int32 lightS = 5;
+		optional int32 lightV = 6;
+	}
+	
+	message IngameError {
+		optional string code = 1;
+		optional string message = 2;
+		repeated string langParams = 3;
+	}
+	
+	message IngameDiscovery {
+		optional string code = 1;
+		optional string message = 2;
+		repeated string langParams = 3;
+	}
+	
+	message BlockDamage {
+		optional int32 posX = 1;
+		optional int32 posY = 2;
+		optional int32 posZ = 3;
+		optional int32 facing = 4;
+		optional int32 damage = 5;
+	}
+	
+	message StopMovement {
+		
+	}
+	
+	message GotoGroup {
+		optional int32 groupId = 1;
+	}
+	
+	message ServerIdentification
+    {
+        optional string networkVersion = 1;
+		optional string gameVersion = 17;
+        optional string serverName = 3;
+        optional int32 mapSizeX = 7;
+        optional int32 mapSizeY = 8;
+        optional int32 mapSizeZ = 9;
+		optional int32 regionMapSizeX = 21;
+        optional int32 regionMapSizeY = 22;
+        optional int32 regionMapSizeZ = 23;
+				
+        optional int32 disableShadows = 11;
+        optional int32 playerAreaSize = 12;
+		optional int32 seed = 13;
+		optional string playStyle = 16;
+		optional int32 requireRemapping = 18;
+		repeated ModId mods = 19;
+		optional bytes worldConfiguration = 20;
+		optional string savegameIdentifier = 24;
+		optional string playListCode = 25;
+		repeated string serverModIdBlackList = 26;
+    }
+	
+	message ModId {
+		optional string modid = 1;
+		optional string name = 2;
+		optional string version = 3;
+		optional string networkversion = 4;
+		optional bool requiredOnClient = 5;
+	}
+    
+    message ServerReady {
+    }
+	
+    message StringList
+    {
+		repeated string items = 1;
+    }
+    
+    message IntString
+    {
+		optional int32 key_ = 1;
+		optional string value_ = 2;
+    }
+	
+	
+    message ServerLevelInitialize
+    {
+		optional int32 serverChunkSize = 1;
+		optional int32 serverMapChunkSize = 2;
+		optional int32 serverMapRegionSize = 3;
+		optional int32 maxViewDistance = 4;
+    }
+
+    
+    message ServerAssets
+    {
+        repeated BlockType Blocks = 1;
+		repeated ItemType Items = 2;
+		repeated EntityType entities = 3;
+		repeated Recipes recipes = 4;
+    }
+    
+	message Recipes {
+		optional string code = 1;
+		optional int32 quantity = 2;
+		optional bytes data = 3;
+	}
+
+
+	
+    message WorldMetaData
+    {
+		optional int32 sunBrightness = 1;
+        repeated int32 blockLightlevels = 2;
+		repeated int32 sunLightlevels = 3;
+		optional bytes worldConfiguration = 4;
+		optional int32 seaLevel = 5;
+    }
+	
+	message LandClaims 
+	{
+		repeated LandClaim allclaims = 1;
+		repeated LandClaim addclaims = 2;
+	}
+	
+	message LandClaim {
+		optional bytes data = 1;
+	}
+	
+	message Roles {
+		repeated Role Roles = 1;
+	}
+	
+	message Role 
+	{
+		optional string Code = 1;
+		optional int32 PrivilegeLevel = 2;
+	}
+	
+    
+    message ServerLevelProgress
+    {
+        optional int32 percentComplete = 2;
+        optional string status = 3;
+        optional int32 percentCompleteSubitem = 4;
+    }
+    
+    message ServerLevelFinalize
+    {
+    }
+    
+    message ServerSetBlock
+    {
+        optional int32 x = 1;
+        optional int32 y = 2;
+        optional int32 z = 3;
+        optional int32 blockType = 4;
+    }
+
+    message ServerExchangeBlock
+    {
+        optional int32 x = 1;
+        optional int32 y = 2;
+        optional int32 z = 3;
+        optional int32 blockType = 4;
+    }
+
+	message PlayerGroups {
+		repeated PlayerGroup groups = 1;
+	}
+	
+	message PlayerGroup {
+		optional int32 uid = 1;
+		optional string owneruid = 2;
+		optional string name = 3;
+		repeated ChatLine chathistory = 4;
+		optional int32 createdbyprivatemessage = 5;
+		optional int32 membership = 6;
+	}
+	
+    message ChatLine
+    {
+        optional string message = 1;
+		optional int32 groupid = 2;
+		optional int32 chatType = 3;
+		optional string data = 4;
+    }
+    
+    message ServerDisconnectPlayer
+    {
+        optional string disconnectReason = 1;
+    }
+    
+    message ServerSound
+    {
+        optional string name = 1;
+        optional int32 x = 2;
+        optional int32 y = 3;
+        optional int32 z = 4;
+		optional int32 pitch = 5;
+		optional int32 range = 6;
+		optional int32 volume = 7;
+		optional int32 soundType = 8;
+    }
+    
+
+    
+    message ServerQueryAnswer
+    {
+        optional string Name = 1;
+        optional string MOTD = 2;
+        optional int32 PlayerCount = 3;
+        optional int32 MaxPlayers = 4;
+        optional string GameMode = 5;
+        optional bool Password = 6;
+        optional string ServerVersion = 7;
+    }
+    
+    message ServerRedirect
+    {
+		optional string name = 1;
+        optional string host = 2;
+    }
+
+	
+	
+	message SpawnParticles {
+		optional string particlePropertyProviderClassName = 1;
+		optional bytes data = 2;
+	}
+	
+	message NetworkChannels {
+		repeated int32 channelIds = 1;
+		repeated string channelNames = 2;
+	}
+    
+	message BlockEntityMessage {
+		optional int32 x = 1;
+		optional int32 y = 2;
+		optional int32 z = 3;
+		optional int32 packetId = 4;
+		optional bytes data = 5;
+	}
+    
+    message ServerEntityDrawBlock
+    {
+		optional int32 blockType = 1;
+    }
+	
+	message ServerChunks {
+		repeated ServerChunk chunks = 1;
+	}
+    
+    message ServerChunk
+    {
+        optional bytes blocks = 1;
+        optional bytes light = 2;
+		optional bytes lightSat = 3;
+		optional bytes liquids = 15;
+		repeated int32 lightPositions = 9;
+        optional int32 x = 4;
+        optional int32 y = 5;
+        optional int32 z = 6;
+		repeated Entity entities = 7;
+		repeated BlockEntity blockEntities = 8;
+		optional bytes moddata = 10;
+		optional int32 empty = 11;
+		repeated int32 decorsPos = 12;
+		repeated int32 decorsIds = 13;
+		optional int32 compver = 14;		
+    }
+	
+	message UnloadServerChunk 
+	{
+		repeated int32 x = 1;
+        repeated int32 y = 2;
+        repeated int32 z = 3;
+	}
+    
+    //needed for drawing shadows.
+    //sent before any chunks or blocks in the column.
+    message ServerMapChunk
+    {
+        optional int32 chunkX = 1;
+        optional int32 chunkZ = 2;
+		optional int32 ymax = 3;
+        optional bytes rainHeightMap = 5;
+		optional bytes terrainHeightMap = 7;
+		optional bytes structures = 6;
+		optional bytes moddata = 8;
+    }
+	
+	message MapRegion
+	{
+        optional int32 regionX = 1;
+        optional int32 regionZ = 2;
+		
+		optional IntMap landformMap = 3;
+		optional IntMap forestMap = 4;
+		optional IntMap climateMap = 5;
+		optional IntMap geologicProvinceMap = 6;
+		repeated GeneratedStructure generatedStructures = 7;
+		optional bytes moddata = 8;
+	}
+
+	message UnloadMapRegion
+	{
+		optional int32 regionX = 1;
+		optional int32 regionZ = 2;
+	}
+	
+	message GeneratedStructure {
+		optional int32 x1 = 1;
+		optional int32 y1 = 2;
+		optional int32 z1 = 3;
+		optional int32 x2 = 4;
+		optional int32 y2 = 5;
+		optional int32 z2 = 6;
+		optional string code = 7;
+		optional string group = 8;
+	}
+	
+	message IntMap {
+		repeated int32 Data = 1;
+		optional int32 Size = 2;
+		optional int32 TopLeftPadding = 3;
+		optional int32 BottomRightPadding = 4;
+	}
+        
+    
+	message ServerCalendar
+    {
+        optional int64 totalSeconds = 1; 
+		repeated string timeSpeedModifierNames = 2;
+		repeated int32 timeSpeedModifierSpeeds = 3;
+        optional int32 moonOrbitDays = 4; // Could send this only once
+		optional int32 hoursPerDay = 5; // Could send this only once
+		optional int32 running = 6;
+		optional int32 calendarSpeedMul = 7;
+		optional int32 daysPerMonth = 8;
+		optional int64 totalSecondsStart = 9;
+    }
+    
+    message ServerPing
+    {
+    }
+    
+    message ServerPlayerPing
+    {
+        repeated int32 clientIds = 1;
+        repeated int32 pings = 2;
+    }
+    
+
+	message InventoryContents 
+	{
+	   optional int32 clientId = 1;
+	   optional string inventoryClass = 2;
+	   optional string InventoryId = 3;
+	   repeated ItemStack Itemstacks = 4;
+	}
+
+	message ItemStack 
+	{
+	   optional ItemClass ItemClass = 1  [default=Block];
+	   optional int32 ItemId = 2;
+	   optional int32 StackSize = 3;
+	   optional bytes Attributes = 4;
+	}
+
+	message NotifySlot
+	{
+	   optional string InventoryId = 1;
+	   optional int32 slotId = 2;
+	}
+
+	message InventoryUpdate 
+	{
+	   optional int32 clientId = 1;
+	   optional string InventoryId = 2;
+	   optional int32 slotId = 3;
+	   optional ItemStack ItemStack = 4;
+	}
+
+	message InventoryDoubleUpdate 
+	{
+	   optional int32 clientId = 1;
+	   optional string InventoryId1 = 2;
+	   optional string InventoryId2 = 3;
+	   optional int32 slotId1 = 4;
+	   optional int32 slotId2 = 5;
+	   optional ItemStack ItemStack1 = 6;
+	   optional ItemStack ItemStack2 = 7;
+	}
+
+    enum ItemClass
+    {
+        Block = 0;
+        Item = 1;
+    }
+	
+	message Entities {
+		repeated Entity entities = 1;
+	}
+	
+	message BlockEntities {
+		repeated BlockEntity blockEntitites = 1;
+	}
+	
+	message ServerSetBlocks {
+		optional bytes setBlocks = 1;
+	}
+	
+	message ServerSetDecors {
+		optional bytes setDecors = 1;
+	}
+	
+	message HighlightBlocks {
+		optional int32 mode = 1;
+		optional int32 shape = 2;
+		optional bytes blocks = 3;
+		repeated int32 colors = 4;
+		optional int32 slotid= 5;
+		optional int32 scale = 6;
+	}
+	
+	message BlockEntity {
+		optional string classname = 1;
+		optional int32 posX = 2;
+		optional int32 posY = 3;
+		optional int32 posZ = 4;
+		optional bytes data = 5;
+	}
+
+	message Entity {
+		optional string entityType = 1;
+		optional int64 entityId = 2;
+		optional int32 trackingRange = 3;
+		optional bytes data = 4;
+	}
+	
+	message EntitySpawn
+    {
+		repeated Entity entity = 1;
+    }
+    
+    message EntityDespawn
+    {
+		repeated int64 entityId = 1;
+		repeated int32 despawnReason = 2;
+		repeated int32 deathDamageSource = 3;
+		repeated int64 byEntityId = 4;
+    }
+	
+	message PlayerPosition {
+		optional int64 entityId = 1;
+		
+		optional sint32 xint = 2;
+		optional sint32 yint = 3;
+		optional sint32 zint = 4;
+		
+		optional sint32 xfrac = 5;
+		optional sint32 yfrac = 6;
+		optional sint32 zfrac = 7;
+		
+		optional int32 yaw = 8;
+		optional int32 pitch = 9;
+		optional int32 roll = 10;
+
+		optional int32 headYaw = 12;
+		optional int32 headPitch = 13;
+		optional int32 bodyYaw = 14;
+		
+		optional EntityMoved mountedPosition = 15;
+
+		optional int32 positionVersionNumber = 11;
+	}
+	
+	message EntityMoved {
+		optional int64 entityId = 1;
+		optional EntityPosition entityPosition = 2;
+		optional int32 motionX = 3;
+		optional int32 motionY = 4;
+		optional int32 motionZ = 5;
+		optional int32 isTeleport = 6;
+		optional int32 controls = 7;
+		repeated int32 activeAnimations = 8;
+		repeated int32 activeAnimationSpeeds = 9;
+	}
+	
+	message EntityBoundingBox {
+		optional int32 sizeX = 1;
+		optional int32 sizeY = 2;
+		optional int32 sizeZ = 3;
+	}
+	
+	message EntityMovedMinimal {
+		optional int64 entityId = 1;
+		
+		optional sint32 xint = 2;
+		optional sint32 yint = 3;
+		optional sint32 zint = 4;		
+		optional sint32 xfrac = 5;
+		optional sint32 yfrac = 6;
+		optional sint32 zfrac = 7;
+		
+		optional int32 yaw = 8;
+		optional int32 pitch = 9;
+		optional int32 roll = 10;
+	}
+	
+	message EntityPosition 
+	{
+		optional sint32 xint = 2;
+		optional sint32 yint = 3;
+		optional sint32 zint = 4;		
+		optional sint32 xfrac = 5;
+		optional sint32 yfrac = 6;
+		optional sint32 zfrac = 7;
+		
+		optional int32 yaw = 8;
+		optional int32 pitch = 9;
+		optional int32 roll = 10;
+		
+		optional int32 headYaw = 11;
+		optional int32 headPitch = 12;
+		optional int32 bodyYaw = 13;
+	}
+	
+	message BulkEntityAttributes {
+		repeated EntityAttributes fullUpdates = 1;
+		repeated EntityAttributeUpdate partialUpdates = 2;
+		repeated EntityMoved posUpdates = 3;
+		repeated EntityMovedMinimal minimalPosUpdates = 4;
+	}
+
+	message BulkEntityDebugAttributes {
+		repeated EntityAttributes fullUpdates = 1;
+		repeated EntityAttributeUpdate partialUpdates = 2;
+	}
+
+	message EntityAttributes
+	{
+		optional int64 entityId = 1;
+		optional bytes data = 2;
+	}
+	
+	message EntityAttributeUpdate 
+	{
+		optional int64 entityId = 1;
+		repeated PartialAttribute attributes = 2;
+	}
+	
+	message PartialAttribute {
+		optional string path = 1;
+		optional bytes data = 2;
+	}
+
+	message PlayerDeath
+	{
+		optional int32 clientId = 1;
+		optional int32 livesLeft = 2;
+	}
+	
+	message PlayerData 
+	{
+		optional int32 clientId = 1;
+		optional int64 entityId = 2;
+		optional int32 gameMode = 3;
+		optional int32 moveSpeed = 4;
+		optional int32 freeMove = 5;
+		optional int32 noClip = 6;
+		repeated InventoryContents inventoryContents = 7;
+		optional string playerUID = 8;
+		optional int32 pickingRange = 9;
+		optional int32 freeMovePlaneLock = 10;
+		optional int32 areaSelectionMode = 11;
+		repeated string privileges = 12;
+		optional string playerName = 13;
+		optional string entitlements = 14;
+		optional int32 hotbarSlotId = 15;
+		optional int32 deaths = 16;
+		
+        optional int32 spawnx = 17;
+        optional int32 spawny = 18;
+        optional int32 spawnz = 19;		
+		optional string roleCode = 20;
+	}
+	
+	message Cube {
+		optional int32 minx = 1;
+		optional int32 miny = 2;
+		optional int32 minz = 3;
+		optional int32 maxx = 4;
+		optional int32 maxy = 5;
+		optional int32 maxz = 6;
+	}
+	
+	
+	message EntityType {
+		optional string code = 1;
+		optional string class = 2;
+		optional string renderer = 3;
+		optional int32 habitat = 4;
+		optional bytes drops = 25;
+		optional CompositeShape shape = 11;
+		repeated Behavior behaviors = 5;
+		optional int32 collisionBoxLength = 6;
+		optional int32 collisionBoxHeight = 7;
+		optional int32 deadCollisionBoxLength = 26;
+		optional int32 deadCollisionBoxHeight = 27;
+		
+		optional int32 selectionBoxLength = 32;
+		optional int32 selectionBoxHeight = 33;
+		optional int32 deadSelectionBoxLength = 34;
+		optional int32 deadSelectionBoxHeight = 35;
+		
+		optional string attributes = 8;
+		
+		repeated string soundKeys = 9;
+		repeated string soundNames = 10;
+		optional int32 idleSoundChance = 14;
+		optional int32 idleSoundRange = 37;
+		
+        repeated string textureCodes = 12;
+		repeated CompositeTexture compositeTextures = 13;
+		optional int32 size = 15;
+		optional int32 eyeHeight = 16;
+		optional int32 swimmingEyeHeight = 36;
+		optional int32 weight = 29;
+		optional int32 canClimb = 17;
+		
+		optional bytes animationMetaData = 18;
+		optional int32 knockbackResistance = 19;
+		optional int32 glowLevel = 20;
+		optional int32 canClimbAnywhere = 21;
+		optional int32 climbTouchDistance = 22;
+		optional int32 rotateModelOnClimb = 23;
+		optional int32 fallDamage = 24;
+		repeated VariantPart variant = 28;
+		optional int32 sizeGrowthFactor = 30;
+		optional int32 pitchStep = 31;
+		optional string color = 38;
+	}
+	
