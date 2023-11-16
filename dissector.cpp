@@ -1,6 +1,7 @@
 #include <algorithm> // for std::max
 #include <iostream>
 #include <iterator> // for std::size
+#include <limits> // for std::numeric_limits
 #include <sstream> // for std::ostringstream
 #include <vector>
 
@@ -38,11 +39,11 @@ void SetInfoColumn(packet_info *pinfo,
   col_add_str(pinfo->cinfo, COL_INFO, joined.c_str());
 }
 
-long DecodeVarInt(tvbuff_t *payload, size_t &offset) {
+long DecodeVarInt(tvbuff_t *payload, gint &offset) {
   long val = 0;
   bool more = true;
   int shift = 0;
-  while (offset < tvb_captured_length(payload) && more) {
+  while (tvb_captured_length_remaining(payload, offset) > 0 && more) {
     unsigned char read = tvb_get_guint8(payload, offset);
     val |= (read & 0x7F) << shift;
     more = read & 0x80;
@@ -52,10 +53,16 @@ long DecodeVarInt(tvbuff_t *payload, size_t &offset) {
   return val;
 }
 
-size_t GetProtoBufEnd(tvbuff_t *payload) {
-  size_t offset = 0;
-  while (offset < tvb_captured_length(payload)) {
-    size_t prev_offset = offset;
+gint GetProtoBufEnd(tvbuff_t *payload) {
+  if (tvb_captured_length(payload) >
+      static_cast<guint>(std::numeric_limits<gint>::max())) {
+    std::cerr << "Captured packet size, " << tvb_captured_length(payload)
+              << ", is beyond gint range." << std::endl;
+    return 0;
+  }
+  gint offset = 0;
+  while (tvb_captured_length_remaining(payload, offset) > 0) {
+    gint prev_offset = offset;
     long tag = DecodeVarInt(payload, offset);
     if (tag == 0) {
       offset = prev_offset;
@@ -73,13 +80,13 @@ size_t GetProtoBufEnd(tvbuff_t *payload) {
       offset += DecodeVarInt(payload, offset);
     }
   }
-  return std::min(offset, static_cast<size_t>(tvb_captured_length(payload)));
+  return std::min(offset, static_cast<gint>(tvb_captured_length(payload)));
 }
 
 int FindVarInt(tvbuff_t *payload, int find_tag, bool &found) {
   found = false;
-  size_t offset = 0;
-  while (offset < tvb_captured_length(payload)) {
+  gint offset = 0;
+  while (tvb_captured_length_remaining(payload, offset) > 0) {
     long tag = DecodeVarInt(payload, offset);
     if (tag == 0) {
       return -1;
@@ -113,7 +120,7 @@ std::string DecodePacket(bool is_server, tvbuff_t *payload,
       // The serializer pads short messages with nulls to a length that's a
       // multiple of 16. The protobuf dissector prints errors if they are
       // passed to it. So use some heuristics to find the end of the message.
-      size_t payload_end = GetProtoBufEnd(payload);
+      gint payload_end = GetProtoBufEnd(payload);
       tvbuff_t *unpadded = tvb_new_subset_length(payload, 0, payload_end);
       call_dissector_with_data(
           protobuf_handle, unpadded, pinfo, tree,
@@ -140,7 +147,7 @@ std::string DecodePacket(bool is_server, tvbuff_t *payload,
         out << "id=" << id;
       }
     } else {
-      size_t offset = 0;
+      gint offset = 0;
       long first_tag = DecodeVarInt(payload, offset);
       if (first_tag == 10) {
         out << "ServerIdentification";
@@ -153,7 +160,7 @@ std::string DecodePacket(bool is_server, tvbuff_t *payload,
       // The client serializer pads short messages with nulls up to length 16.
       // The protobuf dissector prints errors if they are passed to it. So use
       // some heuristics to find the end of the message.
-      size_t payload_end = GetProtoBufEnd(payload);
+      gint payload_end = GetProtoBufEnd(payload);
       tvbuff_t *unpadded = tvb_new_subset_length(payload, 0, payload_end);
       call_dissector_with_data(
           protobuf_handle, unpadded, pinfo, tree,
@@ -179,7 +186,7 @@ std::string DecodePacket(bool is_server, tvbuff_t *payload,
         out << "id=" << id;
       }
     } else {
-      size_t offset = 0;
+      gint offset = 0;
       long first_tag = DecodeVarInt(payload, offset);
       if (first_tag == 18) {
         out << "ClientIdentification";
@@ -191,7 +198,7 @@ std::string DecodePacket(bool is_server, tvbuff_t *payload,
   return out.str();
 }
 
-int Dissect(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree,
+gint Dissect(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree,
             void* /*data*/) {
   if (tvb_captured_length(buffer) < tvb_reported_length(buffer)) {
     // Don't attempt to decode packets that were truncated because the snapshot
@@ -212,9 +219,9 @@ int Dissect(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree,
   bool is_server = (pinfo->srcport == pinfo->match_uint);
 
   std::vector<std::string> packet_names;
-  size_t offset = 0;
-  while (offset < tvb_captured_length(buffer)) {
-    int remaining = tvb_reported_length_remaining(buffer, offset);
+  gint offset = 0;
+  while (tvb_captured_length_remaining(buffer, offset) > 0) {
+    gint remaining = tvb_reported_length_remaining(buffer, offset);
     if (remaining < 4) {
       // The packet_length field is 4 bytes. If there are fewer than 4 bytes
       // remaining, that means the packet was truncated. Setting
@@ -293,10 +300,17 @@ int Dissect(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree,
       size_t final_decomp_size = ZSTD_decompress(decomp_buffer, decomp_size,
                                                  compressed_payload,
                                                  packet_length);
+      if (final_decomp_size > std::numeric_limits<gint>::max()) {
+        std::cerr << "Decompressed size, " << final_decomp_size
+                  << ", is too large to fit in a Wireshark buffer."
+                  << std::endl;
+        return 0;
+      }
 
       // Wrap the decompressed data in a tvbuff_t.
       payload = tvb_new_child_real_data(buffer, decomp_buffer,
-                                        final_decomp_size, final_decomp_size);
+                                        static_cast<gint>(final_decomp_size),
+                                        static_cast<gint>(final_decomp_size));
       add_new_data_source(pinfo, payload, "Decompressed payload");
     }
     packet_names.push_back(DecodePacket(is_server, payload, pinfo, subtree));
@@ -316,54 +330,58 @@ void ProtoRegiser() {
   static hf_register_info fields[] = {
     {
       &hf_compressed, {
-        .name = "compressed",
-        .abbrev = "vs.compressed",
-        .type = FT_BOOLEAN,
-        .display = 32,
-        .strings = nullptr,
-        .bitmask = 0x80000000,
-        .blurb = nullptr,
+        // Visual Studio complains about mixing designated initializers and
+        // non-designated initializers (from HFILL). So avoid using designated
+        // initializers.
+        /*.name =*/ "compressed",
+        /*.abbrev =*/ "vs.compressed",
+        /*.type =*/ FT_BOOLEAN,
+        /*.display =*/ 32,
+        /*.strings =*/ nullptr,
+        /*.bitmask =*/ 0x80000000,
+        /*.blurb =*/ nullptr,
         HFILL
       }
     },
     {
       &hf_packet_length, {
-        .name = "packet length",
-        .abbrev = "vs.length",
-        .type = FT_UINT32,
-        .display = BASE_DEC,
-        .strings = nullptr,
-        .bitmask = 0x7fffffff,
-        .blurb = nullptr,
+        /*.name =*/ "packet length",
+        /*.abbrev =*/ "vs.length",
+        /*.type =*/ FT_UINT32,
+        /*.display =*/ BASE_DEC,
+        /*.strings =*/ nullptr,
+        /*.bitmask =*/ 0x7fffffff,
+        /*.blurb =*/ nullptr,
         HFILL
       }
     },
     {
       &hf_compressed_payload, {
-        .name = "compressed payload",
-        .abbrev = "vs.compressed_payload",
-        .type = FT_BYTES,
-        .display = BASE_NONE,
-        .strings = nullptr,
-        .bitmask = 0,
-        .blurb = nullptr,
+        /*.name =*/ "compressed payload",
+        /*.abbrev =*/ "vs.compressed_payload",
+        /*.type =*/ FT_BYTES,
+        /*.display =*/ BASE_NONE,
+        /*.strings =*/ nullptr,
+        /*.bitmask =*/ 0,
+        /*.blurb =*/ nullptr,
         HFILL
       }
     },
     {
       &hf_padding, {
-        .name = "0 padding",
-        .abbrev = "vs.zero_padding",
-        .type = FT_BYTES,
-        .display = BASE_NONE,
-        .strings = nullptr,
-        .bitmask = 0,
-        .blurb = nullptr,
+        /*.name =*/ "0 padding",
+        /*.abbrev =*/ "vs.zero_padding",
+        /*.type =*/ FT_BYTES,
+        /*.display =*/ BASE_NONE,
+        /*.strings =*/ nullptr,
+        /*.bitmask =*/ 0,
+        /*.blurb =*/ nullptr,
         HFILL
       }
     },
   };
-  proto_register_field_array(proto_id, fields, std::size(fields));
+  proto_register_field_array(proto_id, fields,
+                             static_cast<int>(std::size(fields)));
 
   // This does not need to be static. `proto_register_subtree_array` only uses
   // it as an output array.
@@ -371,7 +389,8 @@ void ProtoRegiser() {
     &protocol_ett,
     &compressed_payload_ett,
   };
-  proto_register_subtree_array(subtree_expansions, std::size(subtree_expansions));
+  proto_register_subtree_array(subtree_expansions,
+                               static_cast<int>(std::size(subtree_expansions)));
 }
 
 void ProtoRegHandoff() {
@@ -381,16 +400,20 @@ void ProtoRegHandoff() {
 
 } // namespace
 
-extern "C" {
+#if defined(_WIN32) || defined __CYGWIN__
+#define EXPORT extern "C" __declspec(dllexport)
+#else
+#define EXPORT extern "C" __attribute__((visibility("default")))
+#endif
 
 // These must be declared extern so that the symbols are exported in the .so
 // library, so that Wireshark can find them. Otherwise, the plugin will fail to
 // load with a 'has no plugin_version symbol' error.
-extern const char plugin_version[] = "1.0.0";
-extern const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
-extern const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
+EXPORT const char plugin_version[] = "1.0.1";
+EXPORT const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
+EXPORT const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 
-void plugin_register()
+EXPORT void plugin_register()
 {
   // This must be static. Wireshark references it after this function returns.
   static proto_plugin plug;
@@ -399,7 +422,5 @@ void plugin_register()
   plug.register_handoff = &ProtoRegHandoff;
   proto_register_plugin(&plug);
 }
-
-} // end extern "C"
 
 } // namespace vintage_story
