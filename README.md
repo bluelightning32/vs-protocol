@@ -21,7 +21,7 @@ The final files consist of a shared library plugin (`libvintage_story.so` on Lin
     * Install `libvintage_story.so` (Linux) or `vintage_story.dll` (Windows) in the epan subfolder of the "Global Plugins" folder (typically /usr/lib64/wireshark/plugins/4.0/epan on Linux or "C:\Program Files\Wireshark\plugins\4.0\epan" on Windows).
     * Install `vintage_story.proto` in the protobuf subfolder "Global configuration" folder (typically /usr/share/wireshark/protobuf on Linux or "C:\Program Files\Wireshark\protobuf" on Windows).
 * User installation
-    * Install `libvintage_story.so` (Linux) or `vintage_story.dll` (Windows) in the "Personal Plugins" folder (typically ~/.local/lib/wireshark/plugins/4.0 on Linux or "C:\Users\username\AppData\Roaming\Wireshark\plugins\4.0" on Windows). Create the folder if it does not exist yet.
+    * Install `libvintage_story.so` (Linux) or `vintage_story.dll` (Windows) in the epan subfolder of the "Personal Plugins" folder (typically ~/.local/lib/wireshark/plugins/4.0/epan on Linux or "C:\Users\username\AppData\Roaming\Wireshark\plugins\4.0\epan" on Windows). Create the folder if it does not exist yet.
     * Install `vintage_story.proto` in the protobuf subfolder of the "Global configuration" folder (typically ~/.config/wireshark/protobuf on Linux or "C:\Users\username\AppData\Roaming\Wireshark\protobuf" on Windows). Create the folder if it does not exist yet.
 
 If it worked, the plugin will be listed on the Plugins tab of the About dialog.
